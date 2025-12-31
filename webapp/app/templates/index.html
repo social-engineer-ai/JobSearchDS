@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}JobMatch - Find Your Dream Job{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+        margin: -2rem -20px 2rem -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    .hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    .search-box {
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        gap: 10px;
+    }
+    .search-box input {
+        flex: 1;
+        padding: 1rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 5px;
+    }
+    .search-box button {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        background: #1e40af;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .search-box button:hover {
+        background: #1e3a8a;
+    }
+    .hero-stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+    .hero-stat {
+        text-align: center;
+    }
+    .hero-stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .hero-stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Find Your Dream Job</h1>
+    <p>Educational job platform for ML/DS learning</p>
+    <form action="/jobs" method="GET" class="search-box">
+        <input type="text" name="query" placeholder="Search jobs, skills, or companies...">
+        <button type="submit">Search</button>
+    </form>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="hero-stat-value">{{ job_count }}</div>
+            <div class="hero-stat-label">Open Jobs</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-value">{{ company_count }}</div>
+            <div class="hero-stat-label">Companies</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-value">{{ candidate_count }}</div>
+            <div class="hero-stat-label">Candidates</div>
+        </div>
+    </div>
+</section>
+
+<h2 class="mb-2">Featured Jobs</h2>
+
+{% if featured_jobs %}
+    <div class="grid grid-3">
+        {% for job in featured_jobs %}
+            <div class="card job-card">
+                <h3><a href="/jobs/{{ job.id }}">{{ job.title }}</a></h3>
+                <div class="company">{{ job.company.name if job.company else 'Unknown Company' }}</div>
+                {% if job.salary_min and job.salary_max and job.show_salary %}
+                    <div class="salary">${{ "{:,}".format(job.salary_min) }} - ${{ "{:,}".format(job.salary_max) }}</div>
+                {% endif %}
+                <div class="meta">
+                    <span>{{ job.location or 'Remote' }}</span>
+                    <span>{{ job.job_type or 'Full-time' }}</span>
+                    {% if job.is_remote %}
+                        <span>Remote</span>
+                    {% endif %}
+                </div>
+                <div class="actions">
+                    <a href="/jobs/{{ job.id }}" class="btn btn-sm">View Details</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="/jobs" class="btn">View All Jobs</a>
+    </div>
+{% else %}
+    <div class="card text-center" style="padding: 3rem;">
+        <h3>No jobs available yet</h3>
+        <p class="text-muted mt-1">Check back soon for new opportunities!</p>
+    </div>
+{% endif %}
+
+<div class="grid grid-2 mt-3">
+    <div class="card">
+        <h3>For Candidates</h3>
+        <p class="text-muted mt-1">
+            Create your profile, browse jobs, and apply to opportunities that match your skills.
+        </p>
+        <ul style="margin: 1rem 0 1rem 1.5rem; color: #4b5563;">
+            <li>Get personalized job recommendations</li>
+            <li>Track your applications</li>
+            <li>Receive salary insights</li>
+        </ul>
+        {% if not user %}
+            <a href="/auth/register" class="btn">Sign Up as Candidate</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>For Recruiters</h3>
+        <p class="text-muted mt-1">
+            Post jobs, review applicants, and find the best candidates for your openings.
+        </p>
+        <ul style="margin: 1rem 0 1rem 1.5rem; color: #4b5563;">
+            <li>AI-powered candidate ranking</li>
+            <li>Streamlined applicant tracking</li>
+            <li>Hiring demand forecasts</li>
+        </ul>
+        {% if not user %}
+            <a href="/auth/register" class="btn btn-secondary">Sign Up as Recruiter</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mt-3" style="background: #f0f9ff; border: 1px solid #bae6fd;">
+    <h3 style="color: #0369a1;">For Students</h3>
+    <p class="mt-1">
+        This platform uses baseline rule-based logic for job recommendations, salary predictions, and candidate ranking.
+        Your mission: <strong>replace these with ML models</strong> and observe the improvements!
+    </p>
+    <p class="text-small text-muted mt-2">
+        Edit <code>config/services.yaml</code> to point to your ML endpoints.
+        Check the <a href="http://localhost:8002">Dashboard</a> to monitor service performance.
+    </p>
+</div>
+{% endblock %}

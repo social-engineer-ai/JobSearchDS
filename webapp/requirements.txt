@@ -1,0 +1,6 @@
+# Webapp-specific dependencies
+# Most dependencies are in the root requirements.txt
+
+# Additional webapp dependencies (if any)
+python-multipart>=0.0.6
+passlib[bcrypt]>=1.7.4

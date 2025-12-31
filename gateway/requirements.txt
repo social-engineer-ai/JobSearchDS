@@ -1,0 +1,5 @@
+# Gateway-specific dependencies
+# Most dependencies are in the root requirements.txt
+
+httpx>=0.25.0
+watchfiles>=0.21.0

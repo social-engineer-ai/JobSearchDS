@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Applicants - {{ job.title }} - JobMatch{% endblock %}
+
+{% block content %}
+<div class="mb-2">
+    <a href="/recruiter/dashboard">&larr; Back to Dashboard</a>
+</div>
+
+<div class="flex flex-between flex-center mb-3">
+    <div>
+        <h1>{{ job.title }}</h1>
+        <p class="text-muted">{{ job.location or 'No location' }} &bull; {{ job.applications | length }} applicants</p>
+    </div>
+    <div class="flex gap-1">
+        {% if job.status == 'open' %}
+            <form action="/recruiter/jobs/{{ job.id }}/close" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-sm btn-secondary">Close Job</button>
+            </form>
+        {% endif %}
+        <a href="/jobs/{{ job.id }}" class="btn btn-sm btn-secondary">View Public Listing</a>
+    </div>
+</div>
+
+{% if ranked_applications %}
+    <!-- Ranking info -->
+    {% if ranked_applications[0].match_score is defined %}
+        <div class="alert alert-info mb-2">
+            Candidates are ranked by match score.
+            {% if is_baseline %}
+                <span class="badge badge-gray">Baseline ranking (FIFO)</span>
+            {% else %}
+                <span class="badge badge-green">ML-powered ranking</span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>Candidate</th>
+                    <th>Match Score</th>
+                    <th>Status</th>
+                    <th>Applied</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in ranked_applications %}
+                    <tr>
+                        <td class="text-muted">{{ loop.index }}</td>
+                        <td>
+                            <strong>{{ app.candidate.first_name }} {{ app.candidate.last_name }}</strong>
+                            {% if app.candidate.headline %}
+                                <div class="text-small text-muted">{{ app.candidate.headline }}</div>
+                            {% endif %}
+                            {% if app.candidate.location %}
+                                <div class="text-small text-muted">{{ app.candidate.location }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.match_score %}
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 60px; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;">
+                                        <div style="width: {{ app.match_score }}%; height: 100%;
+                                                    background: {% if app.match_score >= 70 %}#059669{% elif app.match_score >= 50 %}#f59e0b{% else %}#dc2626{% endif %};">
+                                        </div>
+                                    </div>
+                                    <span class="text-small">{{ app.match_score }}%</span>
+                                </div>
+                                {% if app.match_reasons %}
+                                    <div class="text-small text-muted">{{ app.match_reasons }}</div>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.status == 'submitted' %}
+                                <span class="badge badge-gray">New</span>
+                            {% elif app.status == 'reviewed' %}
+                                <span class="badge badge-blue">Reviewed</span>
+                            {% elif app.status == 'shortlisted' %}
+                                <span class="badge badge-green">Shortlisted</span>
+                            {% elif app.status == 'interviewing' %}
+                                <span class="badge badge-yellow">Interviewing</span>
+                            {% elif app.status == 'offered' %}
+                                <span class="badge badge-green">Offered</span>
+                            {% elif app.status == 'rejected' %}
+                                <span class="badge badge-red">Rejected</span>
+                            {% else %}
+                                <span class="badge badge-gray">{{ app.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-small text-muted">
+                            {{ app.created_at.strftime('%b %d') if app.created_at else 'Recently' }}
+                        </td>
+                        <td>
+                            <div class="flex gap-1" style="flex-wrap: wrap;">
+                                {% if app.status == 'submitted' %}
+                                    <form action="/recruiter/applications/{{ app.id }}/status" method="POST" style="display: inline;">
+                                        <input type="hidden" name="status" value="shortlisted">
+                                        <button type="submit" class="btn btn-sm btn-success">Shortlist</button>
+                                    </form>
+                                    <form action="/recruiter/applications/{{ app.id }}/status" method="POST" style="display: inline;">
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                    </form>
+                                {% elif app.status == 'shortlisted' %}
+                                    <form action="/recruiter/applications/{{ app.id }}/status" method="POST" style="display: inline;">
+                                        <input type="hidden" name="status" value="interviewing">
+                                        <button type="submit" class="btn btn-sm">Schedule Interview</button>
+                                    </form>
+                                {% elif app.status == 'interviewing' %}
+                                    <form action="/recruiter/applications/{{ app.id }}/status" method="POST" style="display: inline;">
+                                        <input type="hidden" name="status" value="offered">
+                                        <button type="submit" class="btn btn-sm btn-success">Make Offer</button>
+                                    </form>
+                                    <form action="/recruiter/applications/{{ app.id }}/status" method="POST" style="display: inline;">
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card text-center" style="padding: 3rem;">
+        <h3>No applications yet</h3>
+        <p class="text-muted mt-1">Share your job posting to attract candidates</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Login - JobMatch{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 2rem auto;">
+    <div class="card">
+        <h2 class="text-center mb-3">Welcome Back</h2>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+            <button type="button" class="btn {% if login_type != 'company' %}{% else %}btn-secondary{% endif %}"
+                    style="flex: 1;" onclick="showForm('candidate')">
+                I'm a Candidate
+            </button>
+            <button type="button" class="btn {% if login_type == 'company' %}{% else %}btn-secondary{% endif %}"
+                    style="flex: 1;" onclick="showForm('company')">
+                I'm a Recruiter
+            </button>
+        </div>
+
+        <!-- Candidate Login Form -->
+        <form id="candidate-form" action="/auth/login/candidate" method="POST"
+              style="{% if login_type == 'company' %}display: none;{% endif %}">
+            <div class="form-group">
+                <label for="candidate-email">Email</label>
+                <input type="email" id="candidate-email" name="email" required
+                       placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label for="candidate-password">Password</label>
+                <input type="password" id="candidate-password" name="password" required
+                       placeholder="Your password">
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">Login as Candidate</button>
+        </form>
+
+        <!-- Company Login Form -->
+        <form id="company-form" action="/auth/login/company" method="POST"
+              style="{% if login_type != 'company' %}display: none;{% endif %}">
+            <div class="form-group">
+                <label for="company-email">Company Email</label>
+                <input type="email" id="company-email" name="email" required
+                       placeholder="hr@company.com">
+            </div>
+            <div class="form-group">
+                <label for="company-password">Password</label>
+                <input type="password" id="company-password" name="password" required
+                       placeholder="Your password">
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">Login as Recruiter</button>
+        </form>
+
+        <p class="text-center mt-3 text-muted">
+            Don't have an account? <a href="/auth/register">Sign up here</a>
+        </p>
+    </div>
+
+    <!-- Demo accounts info -->
+    <div class="card mt-2" style="background: #f0f9ff; border: 1px solid #bae6fd;">
+        <h3 style="font-size: 1rem; color: #0369a1;">Demo Accounts</h3>
+        <p class="text-small text-muted mt-1">
+            <strong>Candidate:</strong> candidate1@example.com / password123<br>
+            <strong>Recruiter:</strong> hr@techcorp.com / password123
+        </p>
+    </div>
+</div>
+
+<script>
+function showForm(type) {
+    const candidateForm = document.getElementById('candidate-form');
+    const companyForm = document.getElementById('company-form');
+    const buttons = document.querySelectorAll('.card > div > button');
+
+    if (type === 'candidate') {
+        candidateForm.style.display = 'block';
+        companyForm.style.display = 'none';
+        buttons[0].className = 'btn';
+        buttons[1].className = 'btn btn-secondary';
+    } else {
+        candidateForm.style.display = 'none';
+        companyForm.style.display = 'block';
+        buttons[0].className = 'btn btn-secondary';
+        buttons[1].className = 'btn';
+    }
+}
+</script>
+{% endblock %}

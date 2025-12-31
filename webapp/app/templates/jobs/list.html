@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Jobs - JobMatch{% endblock %}
+
+{% block content %}
+<div class="flex flex-between flex-center mb-3">
+    <h1>Browse Jobs</h1>
+    <span class="text-muted">{{ total }} jobs found</span>
+</div>
+
+<!-- Search & Filters -->
+<div class="card mb-3">
+    <form method="GET" action="/jobs" class="flex gap-2" style="flex-wrap: wrap;">
+        <div class="form-group" style="flex: 2; min-width: 200px; margin-bottom: 0;">
+            <input type="text" name="query" value="{{ query or '' }}"
+                   placeholder="Search jobs, skills, companies...">
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+            <select name="category">
+                <option value="">All Categories</option>
+                <option value="Engineering" {% if category == 'Engineering' %}selected{% endif %}>Engineering</option>
+                <option value="Data Science" {% if category == 'Data Science' %}selected{% endif %}>Data Science</option>
+                <option value="Product" {% if category == 'Product' %}selected{% endif %}>Product</option>
+                <option value="Design" {% if category == 'Design' %}selected{% endif %}>Design</option>
+                <option value="Marketing" {% if category == 'Marketing' %}selected{% endif %}>Marketing</option>
+            </select>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+            <select name="location">
+                <option value="">All Locations</option>
+                <option value="San Francisco" {% if location == 'San Francisco' %}selected{% endif %}>San Francisco</option>
+                <option value="New York" {% if location == 'New York' %}selected{% endif %}>New York</option>
+                <option value="Austin" {% if location == 'Austin' %}selected{% endif %}>Austin</option>
+                <option value="Seattle" {% if location == 'Seattle' %}selected{% endif %}>Seattle</option>
+                <option value="Remote" {% if location == 'Remote' %}selected{% endif %}>Remote</option>
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" name="is_remote" value="true" {% if is_remote %}checked{% endif %}>
+                Remote Only
+            </label>
+        </div>
+        <button type="submit" class="btn">Search</button>
+        {% if query or category or location or is_remote %}
+            <a href="/jobs" class="btn btn-secondary">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Job Listings -->
+{% if jobs %}
+    <div class="grid">
+        {% for job in jobs %}
+            <div class="card job-card">
+                <div class="flex flex-between flex-center">
+                    <h3><a href="/jobs/{{ job.id }}">{{ job.title }}</a></h3>
+                    {% if job.is_remote %}
+                        <span class="badge badge-blue">Remote</span>
+                    {% endif %}
+                </div>
+                <div class="company">{{ job.company.name if job.company else 'Unknown Company' }}</div>
+                <div class="meta">
+                    <span>{{ job.location or 'Location not specified' }}</span>
+                    <span>{{ job.job_type or 'Full-time' }}</span>
+                    <span>{{ job.experience_level or 'Any level' }}</span>
+                </div>
+                {% if job.salary_min and job.salary_max and job.show_salary %}
+                    <div class="salary">${{ "{:,}".format(job.salary_min) }} - ${{ "{:,}".format(job.salary_max) }}</div>
+                {% endif %}
+                <div class="description">{{ job.description[:150] }}...</div>
+                <div class="actions">
+                    <a href="/jobs/{{ job.id }}" class="btn btn-sm">View Details</a>
+                    {% if user and user.type == 'candidate' %}
+                        <a href="/jobs/{{ job.id }}/apply" class="btn btn-sm btn-success">Apply</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pages > 1 %}
+        <div class="flex flex-center gap-1 mt-3" style="justify-content: center;">
+            {% if page > 1 %}
+                <a href="/jobs?page={{ page - 1 }}{% if query %}&query={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="btn btn-sm btn-secondary">&laquo; Prev</a>
+            {% endif %}
+
+            <span class="text-muted" style="padding: 0.5rem 1rem;">Page {{ page }} of {{ pages }}</span>
+
+            {% if page < pages %}
+                <a href="/jobs?page={{ page + 1 }}{% if query %}&query={{ query }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="btn btn-sm btn-secondary">Next &raquo;</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% else %}
+    <div class="card text-center" style="padding: 3rem;">
+        <h3>No jobs found</h3>
+        <p class="text-muted mt-1">Try adjusting your search filters</p>
+    </div>
+{% endif %}
+{% endblock %}

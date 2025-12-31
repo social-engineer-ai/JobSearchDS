@@ -1,0 +1,65 @@
+# JobMatch Platform - ML Service Configuration
+# =============================================================================
+# STUDENTS: This is the ONLY file you need to modify!
+#
+# To use your own ML model:
+# 1. Deploy your model to Hugging Face Spaces (or similar)
+# 2. Change the endpoint URL below to point to your model
+# 3. Save this file - the gateway will hot-reload automatically
+# =============================================================================
+
+services:
+  # Job Recommender - suggests relevant jobs to candidates
+  # Input: { candidate_id, candidate_profile, interaction_history, num_recommendations }
+  # Output: { job_ids: [], scores: [], explanations: [] }
+  job_recommender:
+    endpoint: "http://localhost:5001/recommend"
+    timeout: 5.0
+    enabled: true
+
+  # Salary Predictor - estimates salary for a job
+  # Input: { job_title, location, company_size, industry, required_skills, experience_range }
+  # Output: { predicted_salary, confidence_interval: [low, high], comparable_jobs: [] }
+  salary_predictor:
+    endpoint: "http://localhost:5002/predict"
+    timeout: 5.0
+    enabled: true
+
+  # Candidate Ranker - ranks applicants for a job
+  # Input: { job_id, job_requirements, candidate_profiles: [], historical_hires: [] }
+  # Output: { ranked_candidate_ids: [], match_scores: [], match_reasons: [] }
+  candidate_ranker:
+    endpoint: "http://localhost:5003/rank"
+    timeout: 5.0
+    enabled: true
+
+  # Resume Parser - extracts structured data from resumes
+  # Input: { resume_text, resume_format }
+  # Output: { skills: [], experience_years, education: {}, work_history: [], summary }
+  resume_parser:
+    endpoint: "http://localhost:5004/parse"
+    timeout: 10.0
+    enabled: true
+
+  # Demand Forecaster - predicts hiring trends
+  # Input: { skill_category, industry, location, historical_postings: [], forecast_horizon }
+  # Output: { forecast_periods: [], predicted_demand: [], confidence_bounds: [] }
+  demand_forecaster:
+    endpoint: "http://localhost:5005/forecast"
+    timeout: 5.0
+    enabled: true
+
+  # Candidate Segmenter - clusters candidates into groups
+  # Input: { candidate_profiles: [], feature_set, num_clusters (optional) }
+  # Output: { cluster_assignments: [], cluster_descriptions: [], cluster_centroids: [] }
+  candidate_segmenter:
+    endpoint: "http://localhost:5006/segment"
+    timeout: 5.0
+    enabled: true
+
+# Gateway Configuration
+gateway:
+  fallback_enabled: true
+  log_requests: true
+  log_responses: true
+  max_retries: 1

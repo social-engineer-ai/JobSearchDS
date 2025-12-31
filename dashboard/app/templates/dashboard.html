@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        header {
+            background: #16213e;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #0f3460;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e94560;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+        .status-dot.warning { background: #fbbf24; }
+        .status-dot.error { background: #ef4444; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #0f3460;
+        }
+        .card h2 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .metric {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4ade80;
+        }
+        .metric.warning { color: #fbbf24; }
+        .metric.error { color: #ef4444; }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .service-card {
+            background: #0f3460;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .service-name {
+            font-weight: 600;
+        }
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        .badge.healthy { background: #065f46; color: #4ade80; }
+        .badge.degraded { background: #78350f; color: #fbbf24; }
+        .badge.down { background: #7f1d1d; color: #ef4444; }
+        .badge.unknown { background: #374151; color: #9ca3af; }
+        .service-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 0.5rem;
+        }
+        .endpoint {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #666;
+            word-break: break-all;
+            margin-top: 0.5rem;
+        }
+        .refresh-btn {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .refresh-btn:hover {
+            background: #d63d56;
+        }
+        .last-updated {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        .info-box {
+            background: #0f3460;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .info-box h3 {
+            color: #e94560;
+            margin-bottom: 0.5rem;
+        }
+        .info-box code {
+            background: #1a1a2e;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">JobMatch Dashboard</div>
+        <div class="status-indicator">
+            <span class="status-dot" id="gateway-status"></span>
+            <span id="gateway-status-text">Connecting...</span>
+            <button class="refresh-btn" onclick="refreshData()">Refresh</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="grid">
+            <div class="card">
+                <h2>Total Requests</h2>
+                <div class="metric" id="total-requests">-</div>
+            </div>
+            <div class="card">
+                <h2>External Success Rate</h2>
+                <div class="metric" id="success-rate">-</div>
+            </div>
+            <div class="card">
+                <h2>Fallback Rate</h2>
+                <div class="metric" id="fallback-rate">-</div>
+            </div>
+            <div class="card">
+                <h2>Error Rate</h2>
+                <div class="metric" id="error-rate">-</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>ML Services Status</h2>
+            <div class="services-grid" id="services-grid">
+                <div class="service-card">
+                    <div class="service-header">
+                        <span class="service-name">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>For Students</h3>
+            <p>To replace a baseline service with your ML model:</p>
+            <ol style="margin-left: 1.5rem; margin-top: 0.5rem; color: #aaa;">
+                <li>Deploy your model to Hugging Face Spaces</li>
+                <li>Edit <code>config/services.yaml</code></li>
+                <li>Change the endpoint URL to your model's URL</li>
+                <li>Watch this dashboard to see your improvements!</li>
+            </ol>
+        </div>
+
+        <p class="last-updated" style="margin-top: 1rem;">
+            Last updated: <span id="last-updated">-</span>
+        </p>
+    </div>
+
+    <script>
+        async function fetchHealth() {
+            try {
+                const response = await fetch('/api/gateway-health');
+                const data = await response.json();
+                return data;
+            } catch (e) {
+                console.error('Failed to fetch health:', e);
+                return { error: e.message };
+            }
+        }
+
+        async function fetchMetrics() {
+            try {
+                const response = await fetch('/api/gateway-metrics');
+                const data = await response.json();
+                return data;
+            } catch (e) {
+                console.error('Failed to fetch metrics:', e);
+                return {};
+            }
+        }
+
+        function updateGatewayStatus(health) {
+            const dot = document.getElementById('gateway-status');
+            const text = document.getElementById('gateway-status-text');
+
+            if (health.error) {
+                dot.className = 'status-dot error';
+                text.textContent = 'Gateway Offline';
+            } else {
+                dot.className = 'status-dot';
+                text.textContent = 'Gateway Online';
+            }
+        }
+
+        function updateMetrics(metrics) {
+            let totalRequests = 0;
+            let externalSuccess = 0;
+            let fallbackSuccess = 0;
+            let failures = 0;
+
+            for (const [name, data] of Object.entries(metrics)) {
+                totalRequests += data.total_requests || 0;
+                externalSuccess += data.external_success || 0;
+                fallbackSuccess += data.fallback_success || 0;
+                failures += data.failures || 0;
+            }
+
+            document.getElementById('total-requests').textContent = totalRequests;
+
+            const successRate = totalRequests > 0
+                ? ((externalSuccess / totalRequests) * 100).toFixed(1) + '%'
+                : '-';
+            document.getElementById('success-rate').textContent = successRate;
+
+            const fallbackRate = totalRequests > 0
+                ? ((fallbackSuccess / totalRequests) * 100).toFixed(1) + '%'
+                : '-';
+            document.getElementById('fallback-rate').textContent = fallbackRate;
+            document.getElementById('fallback-rate').className =
+                'metric' + (fallbackSuccess > 0 ? ' warning' : '');
+
+            const errorRate = totalRequests > 0
+                ? ((failures / totalRequests) * 100).toFixed(1) + '%'
+                : '-';
+            document.getElementById('error-rate').textContent = errorRate;
+            document.getElementById('error-rate').className =
+                'metric' + (failures > 0 ? ' error' : '');
+        }
+
+        function updateServices(health) {
+            const grid = document.getElementById('services-grid');
+
+            if (health.error || !health.services) {
+                grid.innerHTML = `<div class="service-card">
+                    <div class="service-header">
+                        <span class="service-name">Unable to load services</span>
+                        <span class="badge down">Error</span>
+                    </div>
+                </div>`;
+                return;
+            }
+
+            let html = '';
+            for (const [name, data] of Object.entries(health.services)) {
+                const statusClass = data.status === 'healthy' ? 'healthy'
+                    : data.status === 'degraded' ? 'degraded'
+                    : data.status === 'unknown' ? 'unknown' : 'down';
+
+                html += `
+                    <div class="service-card">
+                        <div class="service-header">
+                            <span class="service-name">${name.replace(/_/g, ' ')}</span>
+                            <span class="badge ${statusClass}">${data.status}</span>
+                        </div>
+                        <div class="service-stats">
+                            <span>Requests: ${data.total_requests || 0}</span>
+                            <span>Failures: ${(data.failure_rate * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="endpoint">${data.endpoint}</div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        }
+
+        async function refreshData() {
+            const health = await fetchHealth();
+            const metrics = await fetchMetrics();
+
+            updateGatewayStatus(health);
+            updateMetrics(metrics);
+            updateServices(health);
+
+            document.getElementById('last-updated').textContent =
+                new Date().toLocaleTimeString();
+        }
+
+        // Initial load
+        refreshData();
+
+        // Auto-refresh every 5 seconds
+        setInterval(refreshData, 5000);
+    </script>
+</body>
+</html>

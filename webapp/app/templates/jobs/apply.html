@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Apply - {{ job.title }} - JobMatch{% endblock %}
+
+{% block content %}
+<div class="mb-2">
+    <a href="/jobs/{{ job.id }}">&larr; Back to Job</a>
+</div>
+
+<div style="max-width: 700px;">
+    <div class="card">
+        <h1>Apply for {{ job.title }}</h1>
+        <p class="text-muted">at {{ job.company.name if job.company else 'Unknown Company' }}</p>
+
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e5e7eb;">
+
+        <form action="/jobs/{{ job.id }}/apply" method="POST">
+            <div class="card" style="background: #f9fafb; margin-bottom: 1.5rem;">
+                <h3>Your Profile</h3>
+                <div class="mt-1">
+                    <strong>{{ candidate.first_name }} {{ candidate.last_name }}</strong><br>
+                    <span class="text-muted">{{ candidate.email }}</span>
+                </div>
+                {% if candidate.headline %}
+                    <div class="mt-1">{{ candidate.headline }}</div>
+                {% endif %}
+                {% if candidate.location %}
+                    <div class="text-small text-muted mt-1">{{ candidate.location }}</div>
+                {% endif %}
+                <a href="/candidate/profile" class="text-small">Edit profile &rarr;</a>
+            </div>
+
+            <div class="form-group">
+                <label for="cover_letter">Cover Letter (optional)</label>
+                <textarea id="cover_letter" name="cover_letter" rows="8"
+                          placeholder="Tell the employer why you're a great fit for this role..."></textarea>
+                <p class="text-small text-muted mt-1">
+                    Tip: Highlight your relevant experience and skills.
+                </p>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="submit" class="btn btn-success">Submit Application</button>
+                <a href="/jobs/{{ job.id }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

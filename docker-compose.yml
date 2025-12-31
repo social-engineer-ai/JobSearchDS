@@ -1,0 +1,119 @@
+# JobMatch Platform - Docker Compose Configuration
+# For production/EC2 deployment. For local dev, use: make dev-webapp
+
+version: '3.8'
+
+services:
+  # Main Web Application
+  webapp:
+    build:
+      context: .
+      dockerfile: webapp/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/jobmatch.db
+      - GATEWAY_URL=http://gateway:8001
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    depends_on:
+      - gateway
+    networks:
+      - jobmatch-network
+
+  # Service Gateway
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - CONFIG_PATH=/app/config/services.yaml
+      - FALLBACK_ENABLED=true
+    volumes:
+      - ./config:/app/config
+    depends_on:
+      - job-recommender
+      - salary-predictor
+      - candidate-ranker
+      - resume-parser
+      - demand-forecaster
+      - candidate-segmenter
+    networks:
+      - jobmatch-network
+
+  # Dashboard Service
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - GATEWAY_URL=http://gateway:8001
+    networks:
+      - jobmatch-network
+
+  # Baseline ML Services
+  job-recommender:
+    build:
+      context: .
+      dockerfile: services/job_recommender/Dockerfile
+    ports:
+      - "5001:5001"
+    networks:
+      - jobmatch-network
+
+  salary-predictor:
+    build:
+      context: .
+      dockerfile: services/salary_predictor/Dockerfile
+    ports:
+      - "5002:5002"
+    networks:
+      - jobmatch-network
+
+  candidate-ranker:
+    build:
+      context: .
+      dockerfile: services/candidate_ranker/Dockerfile
+    ports:
+      - "5003:5003"
+    networks:
+      - jobmatch-network
+
+  resume-parser:
+    build:
+      context: .
+      dockerfile: services/resume_parser/Dockerfile
+    ports:
+      - "5004:5004"
+    networks:
+      - jobmatch-network
+
+  demand-forecaster:
+    build:
+      context: .
+      dockerfile: services/demand_forecaster/Dockerfile
+    ports:
+      - "5005:5005"
+    networks:
+      - jobmatch-network
+
+  candidate-segmenter:
+    build:
+      context: .
+      dockerfile: services/candidate_segmenter/Dockerfile
+    ports:
+      - "5006:5006"
+    networks:
+      - jobmatch-network
+
+networks:
+  jobmatch-network:
+    driver: bridge
+
+volumes:
+  jobmatch-data:

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Recruiter Dashboard - JobMatch{% endblock %}
+
+{% block content %}
+<div class="flex flex-between flex-center mb-3">
+    <h1>{{ company.name }}</h1>
+    <a href="/recruiter/post-job" class="btn">+ Post New Job</a>
+</div>
+
+<!-- Stats -->
+<div class="stats mb-3">
+    <div class="stat">
+        <div class="stat-value">{{ jobs | length }}</div>
+        <div class="stat-label">Active Jobs</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">{{ total_applications }}</div>
+        <div class="stat-label">Total Applications</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">{{ pending_review }}</div>
+        <div class="stat-label">Pending Review</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">{{ shortlisted }}</div>
+        <div class="stat-label">Shortlisted</div>
+    </div>
+</div>
+
+<!-- Job Listings -->
+<div class="card">
+    <h2>Your Job Postings</h2>
+
+    {% if jobs %}
+        <table class="mt-2">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Applications</th>
+                    <th>Status</th>
+                    <th>Posted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td>
+                            <a href="/recruiter/jobs/{{ job.id }}/applicants">
+                                <strong>{{ job.title }}</strong>
+                            </a>
+                        </td>
+                        <td>{{ job.location or 'Not specified' }}</td>
+                        <td>
+                            <span class="badge badge-blue">{{ job.applications | length }}</span>
+                        </td>
+                        <td>
+                            {% if job.status == 'open' %}
+                                <span class="badge badge-green">Open</span>
+                            {% elif job.status == 'paused' %}
+                                <span class="badge badge-yellow">Paused</span>
+                            {% elif job.status == 'closed' %}
+                                <span class="badge badge-gray">Closed</span>
+                            {% elif job.status == 'filled' %}
+                                <span class="badge badge-green">Filled</span>
+                            {% else %}
+                                <span class="badge badge-gray">{{ job.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-small text-muted">
+                            {{ job.posted_at.strftime('%b %d') if job.posted_at else 'Recently' }}
+                        </td>
+                        <td>
+                            <a href="/recruiter/jobs/{{ job.id }}/applicants" class="btn btn-sm">
+                                View Applicants
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center text-muted" style="padding: 2rem;">
+            You haven't posted any jobs yet.<br>
+            <a href="/recruiter/post-job" class="btn mt-2">Post Your First Job</a>
+        </p>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="grid grid-3 mt-3">
+    <div class="card text-center">
+        <h3>Post a Job</h3>
+        <p class="text-muted text-small mt-1">Create a new job posting</p>
+        <a href="/recruiter/post-job" class="btn btn-sm mt-2">Post Job</a>
+    </div>
+    <div class="card text-center">
+        <h3>Search Candidates</h3>
+        <p class="text-muted text-small mt-1">Find talent proactively</p>
+        <a href="/recruiter/search-candidates" class="btn btn-sm btn-secondary mt-2">Search</a>
+    </div>
+    <div class="card text-center">
+        <h3>Company Profile</h3>
+        <p class="text-muted text-small mt-1">Update your company info</p>
+        <a href="/recruiter/company-profile" class="btn btn-sm btn-secondary mt-2">Edit</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Post a Job - JobMatch{% endblock %}
+
+{% block content %}
+<div class="mb-2">
+    <a href="/recruiter/dashboard">&larr; Back to Dashboard</a>
+</div>
+
+<div style="max-width: 700px;">
+    <div class="card">
+        <h1>Post a New Job</h1>
+        <p class="text-muted mb-3">Fill out the details below to create a job posting</p>
+
+        <form action="/recruiter/post-job" method="POST">
+            <div class="form-group">
+                <label for="title">Job Title *</label>
+                <input type="text" id="title" name="title" required
+                       placeholder="e.g., Senior Software Engineer">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Job Description *</label>
+                <textarea id="description" name="description" rows="6" required
+                          placeholder="Describe the role, team, and what makes this opportunity exciting..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="requirements">Requirements</label>
+                <textarea id="requirements" name="requirements" rows="4"
+                          placeholder="- 5+ years experience with Python&#10;- Strong problem-solving skills&#10;- Excellent communication"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="responsibilities">Responsibilities</label>
+                <textarea id="responsibilities" name="responsibilities" rows="4"
+                          placeholder="- Design and implement scalable systems&#10;- Mentor junior engineers&#10;- Collaborate with product team"></textarea>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e5e7eb;">
+            <h3>Job Details</h3>
+
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="">Select category...</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Product">Product</option>
+                        <option value="Design">Design</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Finance">Finance</option>
+                        <option value="HR">Human Resources</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="job_type">Job Type</label>
+                    <select id="job_type" name="job_type">
+                        <option value="full-time">Full-time</option>
+                        <option value="part-time">Part-time</option>
+                        <option value="contract">Contract</option>
+                        <option value="internship">Internship</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label for="experience_level">Experience Level</label>
+                    <select id="experience_level" name="experience_level">
+                        <option value="">Any level</option>
+                        <option value="entry">Entry Level</option>
+                        <option value="mid">Mid Level</option>
+                        <option value="senior">Senior</option>
+                        <option value="lead">Lead/Principal</option>
+                        <option value="executive">Executive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location"
+                           placeholder="e.g., San Francisco, CA">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" name="is_remote" value="true" id="is_remote">
+                    This is a remote position
+                </label>
+            </div>
+
+            <div id="remote-type-group" class="form-group" style="display: none;">
+                <label for="remote_type">Remote Type</label>
+                <select id="remote_type" name="remote_type">
+                    <option value="fully-remote">Fully Remote</option>
+                    <option value="hybrid">Hybrid</option>
+                </select>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e5e7eb;">
+            <h3>Compensation</h3>
+
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label for="salary_min">Minimum Salary ($)</label>
+                    <input type="number" id="salary_min" name="salary_min"
+                           placeholder="80000" min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label for="salary_max">Maximum Salary ($)</label>
+                    <input type="number" id="salary_max" name="salary_max"
+                           placeholder="120000" min="0" step="1000">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" name="show_salary" value="true" checked>
+                    Show salary on job posting
+                </label>
+            </div>
+
+            <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e5e7eb;">
+
+            <div class="flex gap-2">
+                <button type="submit" class="btn btn-success">Post Job</button>
+                <a href="/recruiter/dashboard" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('is_remote').addEventListener('change', function() {
+    document.getElementById('remote-type-group').style.display =
+        this.checked ? 'block' : 'none';
+});
+</script>
+{% endblock %}
