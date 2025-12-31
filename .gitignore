@@ -64,4 +64,7 @@ coverage.xml
 
 # Jupyter
 .ipynb_checkpoints/
-*.txt
+
+# Temp files
+cookies.txt
+*_cookies.txt
