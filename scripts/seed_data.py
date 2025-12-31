@@ -16,6 +16,10 @@ from webapp.app.models import (
     Application,
     Skill
 )
+from webapp.app.services.auth import hash_password
+
+# Pre-hash the default password
+DEFAULT_PASSWORD_HASH = hash_password("password123")
 
 
 def seed_skills(db):
@@ -71,7 +75,7 @@ def seed_companies(db):
         {
             "name": "TechCorp Inc.",
             "email": "hr@techcorp.com",
-            "password_hash": "password123",
+            "password_hash": DEFAULT_PASSWORD_HASH,
             "description": "Leading technology company specializing in cloud solutions.",
             "industry": "Technology",
             "company_size": "1001-5000",
@@ -81,7 +85,7 @@ def seed_companies(db):
         {
             "name": "DataDriven Co.",
             "email": "careers@datadriven.com",
-            "password_hash": "password123",
+            "password_hash": DEFAULT_PASSWORD_HASH,
             "description": "Data analytics and ML consulting firm.",
             "industry": "Data Analytics",
             "company_size": "201-500",
@@ -91,7 +95,7 @@ def seed_companies(db):
         {
             "name": "StartupXYZ",
             "email": "jobs@startupxyz.com",
-            "password_hash": "password123",
+            "password_hash": DEFAULT_PASSWORD_HASH,
             "description": "Fast-growing B2B SaaS startup.",
             "industry": "Software",
             "company_size": "51-200",
@@ -101,7 +105,7 @@ def seed_companies(db):
         {
             "name": "FinanceHub",
             "email": "talent@financehub.com",
-            "password_hash": "password123",
+            "password_hash": DEFAULT_PASSWORD_HASH,
             "description": "Fintech company revolutionizing payments.",
             "industry": "Financial Services",
             "company_size": "501-1000",
@@ -111,7 +115,7 @@ def seed_companies(db):
         {
             "name": "HealthTech Solutions",
             "email": "hr@healthtech.com",
-            "password_hash": "password123",
+            "password_hash": DEFAULT_PASSWORD_HASH,
             "description": "Healthcare technology innovator.",
             "industry": "Healthcare",
             "company_size": "201-500",
@@ -138,7 +142,7 @@ def seed_candidates(db):
     for i in range(20):
         candidate = Candidate(
             email=f"candidate{i+1}@example.com",
-            password_hash="password123",
+            password_hash=DEFAULT_PASSWORD_HASH,
             first_name=random.choice(first_names),
             last_name=random.choice(last_names),
             headline=random.choice(titles),
