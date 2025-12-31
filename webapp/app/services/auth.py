@@ -6,8 +6,11 @@ from sqlalchemy.orm import Session
 from ..models.candidate import Candidate
 from ..models.company import Company
 
-# Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing context - use pbkdf2 (portable across all platforms)
+pwd_context = CryptContext(
+    schemes=["pbkdf2_sha256"],
+    deprecated="auto"
+)
 
 
 def hash_password(password: str) -> str:

@@ -201,6 +201,29 @@ async def run_smoke_tests() -> bool:
     else:
         warn("Skipping ML service tests (gateway not running)")
 
+    # Test webapp pages
+    print()
+    info("Testing webapp pages...")
+
+    webapp_running = results[0][0]
+    if webapp_running:
+        pages = [
+            ("/", "Home page"),
+            ("/jobs", "Jobs listing"),
+            ("/auth/login", "Login page"),
+            ("/auth/register", "Register page"),
+        ]
+        for endpoint, name in pages:
+            passed, msg = await test_service(name, WEBAPP_URL, endpoint)
+            results.append((passed, msg))
+            if passed:
+                success(msg)
+            else:
+                fail(msg)
+                all_passed = False
+    else:
+        warn("Skipping webapp page tests (webapp not running)")
+
     # Summary
     print("\n" + "=" * 60)
     passed_count = sum(1 for r in results if r[0])

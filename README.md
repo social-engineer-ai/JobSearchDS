@@ -60,18 +60,28 @@ py scripts/seed_data.py
 
 ### Running Locally
 
+**Option 1: Using Python directly**
+
 ```bash
-# Start the web application
-make dev-webapp
+# Terminal 1: Start the gateway
+py -m uvicorn gateway.app.main:app --host 0.0.0.0 --port 8001 --reload
 
-# In another terminal, start the gateway
-make dev-gateway
+# Terminal 2: Start the webapp
+py -m uvicorn webapp.app.main:app --host 0.0.0.0 --port 8000 --reload
 
-# In another terminal, start baseline services
-make dev-services
+# Terminal 3: Start the dashboard
+py -m uvicorn dashboard.app.main:app --host 0.0.0.0 --port 8002 --reload
 ```
 
-Or using Docker:
+**Option 2: Using Make commands**
+
+```bash
+make dev-webapp     # Start webapp
+make dev-gateway    # Start gateway
+make dev-dashboard  # Start dashboard
+```
+
+**Option 3: Using Docker**
 
 ```bash
 make run
@@ -81,6 +91,26 @@ make run
 - **Web Application:** http://localhost:8000
 - **Service Gateway:** http://localhost:8001
 - **Dashboard:** http://localhost:8002
+
+### Running Smoke Tests
+
+```bash
+# Verify all services are running correctly
+py scripts/smoke_test.py
+```
+
+### Sample Users (after seeding)
+
+Register new accounts or use these test credentials:
+
+**Candidates:**
+- Register at `/auth/register` selecting "Candidate"
+- Browse jobs, apply to positions, view recommendations
+
+**Recruiters:**
+- Register at `/auth/register` selecting "Recruiter"
+- Create a company during registration
+- Post jobs, view applicants, see ML-powered rankings
 
 ## For Students
 
